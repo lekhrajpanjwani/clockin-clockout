@@ -3,6 +3,11 @@
   publish = "dist"
   functions = "netlify/functions"
 
+# Pin the build/runtime Node version (package.json "engines" requires >= 22.13;
+# Netlify reads this, not "engines").
+[build.environment]
+  NODE_VERSION = "22"
+
 [functions]
   node_bundler = "esbuild"
 
