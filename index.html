@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#c08a3e" />
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="description" content="Punchcard — a personal clock in / clock out attendance tracker." />
+    <title>Punchcard — Attendance Tracker</title>
+    <script>
+      // Set the theme class before first paint to avoid a light/dark flash.
+      // Mirrors the logic in src/app/providers/ThemeProvider.tsx.
+      (function () {
+        try {
+          var stored = localStorage.getItem("ui-store");
+          var theme = stored ? JSON.parse(stored)?.state?.theme : null;
+          var resolved =
+            theme === "dark" || theme === "light"
+              ? theme
+              : window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+          if (resolved === "dark") document.documentElement.classList.add("dark");
+        } catch (e) {
+          // localStorage unavailable (private browsing, etc.) — fall back to light.
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

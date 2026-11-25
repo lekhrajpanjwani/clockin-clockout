@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens — carried over from the Phase 1 dashboard mockup
+ * (docs/05-ui-mockups.md): a warm, timepiece-inspired palette rather than a
+ * generic SaaS blue/purple. `--primary` (brass) drives actionable UI;
+ * `--status-live`/`--status-good` are semantic and deliberately distinct so
+ * state never competes visually with an action button.
+ */
+:root {
+  --background: #f3efe7;
+  --foreground: #161310;
+
+  --card: #ffffff;
+  --card-foreground: #161310;
+
+  --popover: #ffffff;
+  --popover-foreground: #161310;
+
+  --primary: #c08a3e;
+  --primary-foreground: #43300f;
+
+  --secondary: #ede6d8;
+  --secondary-foreground: #161310;
+
+  --muted: rgba(22, 19, 16, 0.045);
+  --muted-foreground: #4a4238;
+
+  --accent: rgba(30, 142, 130, 0.12);
+  --accent-foreground: #161310;
+
+  --destructive: #c1543a;
+  --destructive-foreground: #ffffff;
+
+  --border: rgba(22, 19, 16, 0.09);
+  --input: rgba(22, 19, 16, 0.09);
+  --ring: #1e8e82;
+
+  --status-live: #1e8e82;
+  --status-live-bg: rgba(30, 142, 130, 0.12);
+  --status-good: #3f9142;
+  --status-good-bg: rgba(63, 145, 66, 0.1);
+  --status-warn: #c1543a;
+  --status-warn-bg: rgba(193, 84, 58, 0.1);
+
+  --radius: 0.9rem;
+}
+
+:root.dark {
+  --background: #14120f;
+  --foreground: #ede7dc;
+
+  --card: #1b1815;
+  --card-foreground: #ede7dc;
+
+  --popover: #1b1815;
+  --popover-foreground: #ede7dc;
+
+  --primary: #d9a75b;
+  --primary-foreground: #2a1e0c;
+
+  --secondary: #221e19;
+  --secondary-foreground: #ede7dc;
+
+  --muted: rgba(255, 255, 255, 0.045);
+  --muted-foreground: #b4aa98;
+
+  --accent: rgba(79, 197, 183, 0.14);
+  --accent-foreground: #ede7dc;
+
+  --destructive: #e17b60;
+  --destructive-foreground: #14120f;
+
+  --border: rgba(255, 255, 255, 0.09);
+  --input: rgba(255, 255, 255, 0.09);
+  --ring: #4fc5b7;
+
+  --status-live: #4fc5b7;
+  --status-live-bg: rgba(79, 197, 183, 0.14);
+  --status-good: #6fc271;
+  --status-good-bg: rgba(111, 194, 113, 0.12);
+  --status-warn: #e17b60;
+  --status-warn-bg: rgba(225, 123, 96, 0.14);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background font-body text-foreground antialiased;
+    background-image:
+      radial-gradient(1200px 600px at 85% -10%, rgba(192, 138, 62, 0.12), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(30, 142, 130, 0.08), transparent 60%);
+    background-attachment: fixed;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display;
+    text-wrap: balance;
+  }
+  ::selection {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

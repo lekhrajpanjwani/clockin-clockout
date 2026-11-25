@@ -1,0 +1,33 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+# `netlify dev` runs Vite as a subprocess (targetPort) and serves everything
+# — static assets, proxied to Vite, and the /api/* functions — from one
+# origin (port), matching production topology and avoiding CORS in dev.
+[dev]
+  command = "npm run dev"
+  targetPort = 5173
+  port = 8888
+  autoLaunch = false
+
+# SPA fallback: any path that isn't a static asset or a function route
+# (functions declare their own /api/* path via `export const config` in v2
+# style, so no explicit /api/* redirect is needed here) resolves to
+# index.html and React Router takes over client-side.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
