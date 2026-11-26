@@ -1,6 +1,7 @@
 import { useAuthStore } from "../features/auth/store/authStore";
 import { API_BASE } from "../constants/api";
 import type { ApiErrorBody } from "../lib/shared/types/attendance";
+import { captureError } from "../lib/monitoring";
 
 export class ApiError extends Error {
   code: string;
@@ -38,12 +39,23 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
     } catch {
       // Non-JSON error body (e.g. a proxy/edge failure) — fall through to the generic message below.
     }
-    throw new ApiError(
+    const error = new ApiError(
       body?.error.code ?? "UNKNOWN_ERROR",
       body?.error.message ?? `Request failed with status ${res.status}`,
       res.status,
       body?.error.details,
     );
+    // 4xx are expected business outcomes (validation, conflicts); only
+    // server-side failures are worth an error report.
+    if (res.status >= 500) {
+      captureError(error, {
+        method: init.method ?? "GET",
+        path: path.split("?")[0],
+        status: res.status,
+        code: error.code,
+      });
+    }
+    throw error;
   }
 
   return (await res.json()) as T;

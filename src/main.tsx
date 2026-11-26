@@ -8,6 +8,9 @@ import "@fontsource/jetbrains-mono/500.css";
 import "@fontsource/jetbrains-mono/600.css";
 import "./styles/global.css";
 import { App } from "./App";
+import { initMonitoring } from "./lib/monitoring";
+
+void initMonitoring();
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
