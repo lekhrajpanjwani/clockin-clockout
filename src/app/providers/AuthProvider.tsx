@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { AlertTriangle } from "lucide-react";
 import { getSupabaseClient } from "../../services/supabaseClient";
 import { useAuthStore } from "../../features/auth/store/authStore";
+import { setMonitoringUser } from "../../lib/monitoring";
 
 /**
  * Hydrates the auth store from Supabase on mount and keeps it in sync via
@@ -24,11 +25,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return undefined;
     }
 
-    client.auth.getSession().then(({ data }) => setSession(data.session));
+    client.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setMonitoringUser(data.session?.user.id ?? null);
+    });
 
     const {
       data: { subscription },
-    } = client.auth.onAuthStateChange((_event, session) => setSession(session));
+    } = client.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setMonitoringUser(session?.user.id ?? null);
+    });
 
     return () => subscription.unsubscribe();
   }, [setSession, setConfigError]);

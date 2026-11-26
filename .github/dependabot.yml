@@ -1,0 +1,25 @@
+# Weekly dependency update PRs (grouped to keep the noise down). CI runs on each.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Asia/Kolkata
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # Local shim (tools/buffer-equal-constant-time) — not on the registry.
+      - dependency-name: buffer-equal-constant-time
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]

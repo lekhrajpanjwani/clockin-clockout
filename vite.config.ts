@@ -4,6 +4,10 @@ import tsconfigPaths from "vite-tsconfig-paths";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  define: {
+    // Release tag for error reports: Netlify sets COMMIT_REF during builds.
+    "import.meta.env.VITE_APP_RELEASE": JSON.stringify(process.env.COMMIT_REF?.slice(0, 12) ?? ""),
+  },
   plugins: [
     react(),
     tsconfigPaths(),
@@ -31,6 +35,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
+        // Don't make every install download the (optional) error-tracking SDK.
+        globIgnores: ["**/sentry-*.js"],
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [{ urlPattern: /\/api\//, handler: "NetworkOnly" }],
@@ -92,6 +98,9 @@ export default defineConfig({
           supabase: ["@supabase/supabase-js"],
           query: ["@tanstack/react-query", "zustand"],
           motion: ["framer-motion"],
+          // Only downloaded when VITE_SENTRY_DSN is set (src/lib/monitoring.ts),
+          // after first paint, and kept out of the PWA precache below.
+          sentry: ["@sentry/browser"],
         },
       },
     },

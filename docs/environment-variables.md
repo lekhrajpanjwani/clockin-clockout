@@ -15,3 +15,5 @@ Rules:
 - Only `VITE_`-prefixed variables reach the browser. Anything else is server-only.
 - `.env`, `.env.local` and `.env.*.local` are git-ignored. Keep it that way.
 - E2E tests and CI builds use placeholder Supabase values (see `playwright.config.ts` and `.github/workflows/ci.yml`) — they never need real credentials.
+
+GitHub Actions secrets (not Netlify): `SUPABASE_DB_URL` and `BACKUP_PASSPHRASE` for the weekly backup — see [operations.md](operations.md#5-database-backups).

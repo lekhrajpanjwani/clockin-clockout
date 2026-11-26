@@ -4,6 +4,8 @@ A personal attendance tracker: clock in and out (several sessions a day), take b
 
 **Stack:** React 19 + TypeScript + Vite · Tailwind/shadcn · TanStack Query · Netlify Functions · Supabase (Postgres + Auth) · installable PWA.
 
+Live: https://trackmylogs.netlify.app
+
 ## Features
 
 - **Dashboard** — Clock In / Start Break / End Break / Clock Out / Clock In again, live timer, day timeline, worked and break totals, Mark leave.
@@ -46,4 +48,4 @@ Run the SQL files in `supabase/migrations/` (in order) in your Supabase project'
 5. [UI mockups](docs/05-ui-mockups.md)
 6. [Option 2 plan — sessions, breaks, corrections, auto-close, leave](docs/06-option2-plan.md)
 
-- [Deployment guide](docs/deployment-guide.md) · [Environment variables](docs/environment-variables.md)
+- [Deployment guide](docs/deployment-guide.md) · [Operations runbook](docs/operations.md) · [Environment variables](docs/environment-variables.md)
