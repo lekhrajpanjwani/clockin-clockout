@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { VitePWA } from "vite-plugin-pwa";
+import { netlifyFunctionsDev } from "./netlify/dev/viteApiPlugin";
 
 export default defineConfig({
   define: {
@@ -11,6 +12,9 @@ export default defineConfig({
   plugins: [
     react(),
     tsconfigPaths(),
+    // Serves /api/* from netlify/functions in-process during `npm run dev`.
+    // Set API_PROXY=1 to forward to `npm run dev:api` (:9999) instead.
+    ...(process.env.API_PROXY ? [] : [netlifyFunctionsDev()]),
     // Installable PWA: precaches the app shell so the UI opens instantly and
     // offline. /api/* is deliberately NOT cached — attendance data is
     // per-user and must never be served stale from a shared device's cache;

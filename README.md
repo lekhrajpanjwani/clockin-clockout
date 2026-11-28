@@ -29,15 +29,15 @@ Run the SQL files in `supabase/migrations/` (in order) in your Supabase project'
 
 ## Scripts
 
-| Command                           |                                                                          |
-| --------------------------------- | ------------------------------------------------------------------------ |
-| `npm run netlify:dev`             | App + functions locally (port 8888)                                      |
-| `npm run dev` + `npm run dev:api` | Front end (5173) and functions (9999) separately                         |
-| `npm run check`                   | Typecheck + lint + unit/DB tests                                         |
-| `npm test` / `npm run test:tz`    | Unit + database tests (once / under three host timezones)                |
-| `npm run test:db`                 | Database tests only (in-process Postgres via PGlite)                     |
-| `npm run test:e2e`                | Playwright end-to-end tests (run `npx playwright install chromium` once) |
-| `npm run build`                   | Production build                                                         |
+| Command                        |                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------ |
+| `npm run dev`                  | App + functions locally on :5173 — functions stay warm (fastest)         |
+| `npm run netlify:dev`          | Production-like Netlify emulation on :8888 (slow per call on Windows)    |
+| `npm run check`                | Typecheck + lint + unit/DB tests                                         |
+| `npm test` / `npm run test:tz` | Unit + database tests (once / under three host timezones)                |
+| `npm run test:db`              | Database tests only (in-process Postgres via PGlite)                     |
+| `npm run test:e2e`             | Playwright end-to-end tests (run `npx playwright install chromium` once) |
+| `npm run build`                | Production build                                                         |
 
 ## Docs
 

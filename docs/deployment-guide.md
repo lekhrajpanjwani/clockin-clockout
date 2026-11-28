@@ -32,7 +32,9 @@ cp .env.example .env.local   # fill in real values
 npm run netlify:dev           # Vite + functions on http://localhost:8888
 ```
 
-`npm run dev` alone serves **only the SPA** on :5173 and proxies `/api` to a functions server on :9999 — start that in a second terminal with `npm run dev:api`. If it isn't running, every `/api` call returns `503 API_UNAVAILABLE` (the toast says how to fix it). The simplest option is `npm run netlify:dev`, which runs both on http://localhost:8888.
+`npm run dev` serves the app **and** the API on http://localhost:5173: a small Vite plugin (`netlify/dev/viteApiPlugin.ts`) runs `netlify/functions/*` in-process, routed by each function's `config.path`, and keeps them warm the way production does. Server-side secrets are read from `.env`. Use it for day-to-day work.
+
+Why not the Netlify CLI for daily work? `netlify functions:serve` / `netlify dev` start a fresh worker thread for **every** call and re-import the function and its dependencies (~900 files). That is ~250 ms per call on Linux but 8–20 s on Windows, where antivirus scans each file. `npm run netlify:dev` (http://localhost:8888) is still there for production-like checks (redirects, headers, scheduled functions); to point the :5173 front end at `npm run dev:api` (:9999) instead, start it with `API_PROXY=1`.
 
 ## 4. Quality gates
 
