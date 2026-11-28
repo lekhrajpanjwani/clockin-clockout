@@ -26,7 +26,7 @@ export function ReviewBanner() {
 
   return (
     <Card
-      className="flex flex-col gap-3 border-transparent bg-status-warn-bg p-4 sm:flex-row sm:items-center"
+      className="flex flex-col gap-3 bg-status-warn-bg p-4 shadow-none sm:flex-row sm:items-center"
       role="status"
     >
       <AlertTriangle className="size-5 shrink-0 text-status-warn" />

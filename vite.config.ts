@@ -97,7 +97,6 @@ export default defineConfig({
           react: ["react", "react-dom", "react-router-dom"],
           supabase: ["@supabase/supabase-js"],
           query: ["@tanstack/react-query", "zustand"],
-          motion: ["framer-motion"],
           // Only downloaded when VITE_SENTRY_DSN is set (src/lib/monitoring.ts),
           // after first paint, and kept out of the PWA precache below.
           sentry: ["@sentry/browser"],

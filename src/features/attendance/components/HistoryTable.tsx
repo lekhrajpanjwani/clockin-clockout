@@ -42,8 +42,7 @@ function SortHeader({
         type="button"
         onClick={() => onSort(column)}
         className={
-          "inline-flex items-center gap-1 uppercase tracking-wide hover:text-foreground " +
-          (active ? "text-foreground" : "")
+          "inline-flex items-center gap-1 hover:text-foreground " + (active ? "text-foreground" : "")
         }
       >
         {label}
@@ -58,7 +57,7 @@ export function HistoryTable({ items, sortBy, sortDir, onSort, todayIso }: Histo
     <div className="relative overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-border text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          <tr className="text-left text-xs font-medium text-muted-foreground">
             <SortHeader label="Date" column="workDate" sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
             <th className="px-4 py-3">Clock in</th>
             <th className="px-4 py-3">Clock out</th>
@@ -79,7 +78,7 @@ export function HistoryTable({ items, sortBy, sortDir, onSort, todayIso }: Histo
         </thead>
         <tbody>
           {items.map((r) => (
-            <tr key={r.id} className="border-border/60 border-b last:border-0">
+            <tr key={r.id} className="hover:bg-muted/50 group border-t border-border transition-colors">
               <td className="whitespace-nowrap px-4 py-2.5 font-semibold tabular-nums">
                 {parseIsoDate(r.workDate).toLocaleDateString(undefined, {
                   weekday: "short",
@@ -89,13 +88,13 @@ export function HistoryTable({ items, sortBy, sortDir, onSort, todayIso }: Histo
                   timeZone: "UTC",
                 })}
               </td>
-              <td className="px-4 py-2.5 font-mono tabular-nums">
+              <td className="px-4 py-2.5 tabular-nums">
                 {r.clockIn ? localTimeString(new Date(r.clockIn), r.timezone) : "—"}
               </td>
-              <td className="px-4 py-2.5 font-mono tabular-nums">
+              <td className="px-4 py-2.5 tabular-nums">
                 {r.clockOut ? localTimeString(new Date(r.clockOut), r.timezone) : "—"}
               </td>
-              <td className="px-4 py-2.5 text-right font-mono tabular-nums">
+              <td className="px-4 py-2.5 text-right tabular-nums">
                 {r.workedMinutes != null ? formatMinutesAsHours(r.workedMinutes) : "—"}
               </td>
               <td className="hidden px-4 py-2.5 text-xs text-muted-foreground md:table-cell">{r.timezone}</td>
@@ -113,7 +112,7 @@ export function HistoryTable({ items, sortBy, sortDir, onSort, todayIso }: Histo
                   )}
                 </span>
               </td>
-              <td className="px-2 py-1.5">
+              <td className="px-2 py-1.5 transition-opacity md:opacity-60 md:group-focus-within:opacity-100 md:group-hover:opacity-100">
                 <DayActions date={r.workDate} record={r} todayIso={todayIso} />
               </td>
             </tr>

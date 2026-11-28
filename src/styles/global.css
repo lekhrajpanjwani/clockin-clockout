@@ -3,86 +3,109 @@
 @tailwind utilities;
 
 /*
- * Design tokens — carried over from the Phase 1 dashboard mockup
- * (docs/05-ui-mockups.md): a warm, timepiece-inspired palette rather than a
- * generic SaaS blue/purple. `--primary` (brass) drives actionable UI;
- * `--status-live`/`--status-good` are semantic and deliberately distinct so
- * state never competes visually with an action button.
+ * Design tokens — "Warm refresh" (direction C of the UI refresh mockup):
+ * the brass + teal identity on clean warm-neutral surfaces, Inter for all
+ * text, borderless cards with a hairline ring and soft shadow.
+ *   --primary        brass — the one actionable accent
+ *   --status-live    teal  — working / live state
+ *   --status-break   amber — breaks and things needing review
+ * State colours never compete with the action colour.
  */
 :root {
-  --background: #f3efe7;
-  --foreground: #161310;
+  --background: #f6f4f0;
+  --foreground: #1c1917;
 
   --card: #ffffff;
-  --card-foreground: #161310;
+  --card-foreground: #1c1917;
 
   --popover: #ffffff;
-  --popover-foreground: #161310;
+  --popover-foreground: #1c1917;
 
-  --primary: #c08a3e;
-  --primary-foreground: #43300f;
+  --primary: #9a6b1f;
+  --primary-foreground: #ffffff;
+  --primary-soft: rgba(154, 107, 31, 0.11);
+  --primary-ink: #7c5414;
 
-  --secondary: #ede6d8;
-  --secondary-foreground: #161310;
+  --secondary: #efebe4;
+  --secondary-foreground: #1c1917;
 
-  --muted: rgba(22, 19, 16, 0.045);
-  --muted-foreground: #4a4238;
+  --muted: #efebe4;
+  --muted-foreground: #5f574e;
 
-  --accent: rgba(30, 142, 130, 0.12);
-  --accent-foreground: #161310;
+  --accent: rgba(30, 142, 130, 0.1);
+  --accent-foreground: #1c1917;
 
-  --destructive: #c1543a;
+  --destructive: #b42318;
   --destructive-foreground: #ffffff;
 
-  --border: rgba(22, 19, 16, 0.09);
-  --input: rgba(22, 19, 16, 0.09);
+  --border: rgba(40, 30, 20, 0.09);
+  --input: rgba(40, 30, 20, 0.14);
   --ring: #1e8e82;
+  --track: #efebe4;
 
-  --status-live: #1e8e82;
+  --status-live: #0f766e;
+  --status-live-fill: #1e8e82;
   --status-live-bg: rgba(30, 142, 130, 0.12);
-  --status-good: #3f9142;
-  --status-good-bg: rgba(63, 145, 66, 0.1);
-  --status-warn: #c1543a;
-  --status-warn-bg: rgba(193, 84, 58, 0.1);
+  --status-break: #7c5414;
+  --status-break-fill: #d9a55b;
+  --status-break-bg: rgba(217, 165, 91, 0.18);
+  --status-good: #3f7d41;
+  --status-good-bg: rgba(63, 145, 66, 0.12);
+  --status-warn: #8a3d1e;
+  --status-warn-bg: #fbebd9;
+  --status-bad: #b42318;
 
-  --radius: 0.9rem;
+  --shadow-card:
+    0 0 0 1px var(--border), 0 1px 2px rgba(28, 25, 23, 0.04), 0 8px 24px -14px rgba(28, 25, 23, 0.1);
+
+  --radius: 1.25rem;
 }
 
 :root.dark {
-  --background: #14120f;
-  --foreground: #ede7dc;
+  --background: #121110;
+  --foreground: #eeeae4;
 
-  --card: #1b1815;
-  --card-foreground: #ede7dc;
+  --card: #1c1a18;
+  --card-foreground: #eeeae4;
 
-  --popover: #1b1815;
-  --popover-foreground: #ede7dc;
+  --popover: #1c1a18;
+  --popover-foreground: #eeeae4;
 
   --primary: #d9a75b;
-  --primary-foreground: #2a1e0c;
+  --primary-foreground: #1c1917;
+  --primary-soft: rgba(217, 167, 91, 0.16);
+  --primary-ink: #e6bc7c;
 
-  --secondary: #221e19;
-  --secondary-foreground: #ede7dc;
+  --secondary: #2a2724;
+  --secondary-foreground: #eeeae4;
 
-  --muted: rgba(255, 255, 255, 0.045);
-  --muted-foreground: #b4aa98;
+  --muted: #2a2724;
+  --muted-foreground: #a9a198;
 
   --accent: rgba(79, 197, 183, 0.14);
-  --accent-foreground: #ede7dc;
+  --accent-foreground: #eeeae4;
 
-  --destructive: #e17b60;
-  --destructive-foreground: #14120f;
+  --destructive: #f0a48d;
+  --destructive-foreground: #121110;
 
-  --border: rgba(255, 255, 255, 0.09);
-  --input: rgba(255, 255, 255, 0.09);
+  --border: rgba(255, 245, 230, 0.08);
+  --input: rgba(255, 245, 230, 0.14);
   --ring: #4fc5b7;
+  --track: #2a2724;
 
-  --status-live: #4fc5b7;
+  --status-live: #5fd3c5;
+  --status-live-fill: #4fc5b7;
   --status-live-bg: rgba(79, 197, 183, 0.14);
-  --status-good: #6fc271;
+  --status-break: #e6bc7c;
+  --status-break-fill: #d9a75b;
+  --status-break-bg: rgba(217, 167, 91, 0.16);
+  --status-good: #8fd18f;
   --status-good-bg: rgba(111, 194, 113, 0.12);
-  --status-warn: #e17b60;
+  --status-warn: #f0a48d;
   --status-warn-bg: rgba(225, 123, 96, 0.14);
+  --status-bad: #f0a48d;
+
+  --shadow-card: 0 0 0 1px var(--border), 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 @layer base {
@@ -91,10 +114,7 @@
   }
   body {
     @apply bg-background font-body text-foreground antialiased;
-    background-image:
-      radial-gradient(1200px 600px at 85% -10%, rgba(192, 138, 62, 0.12), transparent 60%),
-      radial-gradient(900px 500px at -10% 10%, rgba(30, 142, 130, 0.08), transparent 60%);
-    background-attachment: fixed;
+    font-feature-settings: "cv11", "ss01";
   }
   h1,
   h2,
@@ -102,6 +122,7 @@
   h4 {
     @apply font-display;
     text-wrap: balance;
+    letter-spacing: -0.02em;
   }
   ::selection {
     background-color: var(--primary);

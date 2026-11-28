@@ -26,9 +26,17 @@ export default {
         // Semantic status colors — deliberately separate from the brand
         // `primary` accent so state (live / completed) never competes
         // visually with an actionable button. See docs/05-ui-mockups.md.
+        track: "var(--track)",
+        "primary-soft": "var(--primary-soft)",
+        "primary-ink": "var(--primary-ink)",
         status: {
           live: "var(--status-live)",
+          "live-fill": "var(--status-live-fill)",
           "live-bg": "var(--status-live-bg)",
+          break: "var(--status-break)",
+          "break-fill": "var(--status-break-fill)",
+          "break-bg": "var(--status-break-bg)",
+          bad: "var(--status-bad)",
           good: "var(--status-good)",
           "good-bg": "var(--status-good-bg)",
           warn: "var(--status-warn)",
@@ -37,13 +45,17 @@ export default {
       },
       borderRadius: {
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 4px)",
-        sm: "calc(var(--radius) - 8px)",
+        md: "0.75rem",
+        sm: "0.5rem",
       },
       fontFamily: {
-        display: ["Manrope", "ui-sans-serif", "system-ui", "sans-serif"],
-        body: ['"Source Sans 3"', "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
+        // One family everywhere; times and totals use tabular figures.
+        display: ['"Inter Variable"', "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        body: ['"Inter Variable"', "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ['"Inter Variable"', "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
+      boxShadow: {
+        card: "var(--shadow-card)",
       },
       keyframes: {
         "fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },

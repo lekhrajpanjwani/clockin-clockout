@@ -10,7 +10,11 @@ export const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
-  <DialogPrimitive.Overlay ref={ref} className={cn("fixed inset-0 z-50 bg-black/50", className)} {...props} />
+  <DialogPrimitive.Overlay
+    ref={ref}
+    className={cn("fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px]", className)}
+    {...props}
+  />
 ));
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
@@ -23,7 +27,7 @@ export const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border border-border bg-card p-6 text-card-foreground shadow-lg",
+        "fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-card p-6 text-card-foreground shadow-card",
         className,
       )}
       {...props}
@@ -48,7 +52,7 @@ export const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("font-display text-lg font-bold leading-none tracking-tight", className)}
+    className={cn("font-display text-lg font-semibold leading-none", className)}
     {...props}
   />
 ));
