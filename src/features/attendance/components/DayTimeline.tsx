@@ -3,6 +3,7 @@ import { Coffee } from "lucide-react";
 import type { AttendanceSession } from "../../../lib/shared/types/attendance";
 import { formatMinutesAsHours, localTimeString } from "../../../lib/shared/time/attendance";
 import { cn } from "../../../utils/cn";
+import { StatusBadge } from "./StatusBadge";
 
 const HOUR = 3_600_000;
 
@@ -45,7 +46,7 @@ export function DayTimeline({ sessions, timezone, now }: DayTimelineProps) {
     <div className="flex flex-col gap-3">
       <div className="relative">
         <div
-          className="relative h-7 overflow-hidden rounded-md bg-muted"
+          className="relative h-2.5 overflow-hidden rounded-full bg-track"
           role="img"
           aria-label={`Timeline: ${sessions.length} session${sessions.length > 1 ? "s" : ""} today`}
         >
@@ -55,7 +56,10 @@ export function DayTimeline({ sessions, timezone, now }: DayTimelineProps) {
             return (
               <div
                 key={s.id}
-                className={cn("absolute inset-y-0 bg-status-live", s.clockOut === null && "opacity-80")}
+                className={cn(
+                  "absolute inset-y-0 rounded-full bg-status-live-fill",
+                  s.clockOut === null && "opacity-90",
+                )}
                 style={{ left: pct(a), width: width(a, b) }}
               >
                 {s.breaks.map((br) => {
@@ -64,12 +68,10 @@ export function DayTimeline({ sessions, timezone, now }: DayTimelineProps) {
                   return (
                     <div
                       key={br.id}
-                      className="absolute inset-y-0 bg-primary"
+                      className="absolute inset-y-0 bg-status-break-fill"
                       style={{
                         left: `${((bs - a) / Math.max(b - a, 1)) * 100}%`,
                         width: `${((be - bs) / Math.max(b - a, 1)) * 100}%`,
-                        backgroundImage:
-                          "repeating-linear-gradient(135deg, transparent 0 4px, rgba(255,255,255,0.25) 4px 8px)",
                       }}
                       title={`Break ${localTimeString(new Date(bs), timezone)} – ${
                         br.breakEnd ? localTimeString(new Date(be), timezone) : "now"
@@ -82,13 +84,13 @@ export function DayTimeline({ sessions, timezone, now }: DayTimelineProps) {
           })}
           {isOpen && (
             <div
-              className="absolute inset-y-0 w-0.5 bg-foreground"
+              className="absolute inset-y-0 w-0.5 rounded-full bg-foreground"
               style={{ left: pct(nowMs) }}
               aria-hidden
             />
           )}
         </div>
-        <div className="relative mt-1 h-4 text-[10px] text-muted-foreground">
+        <div className="relative mt-1.5 h-4 text-[11px] text-muted-foreground">
           {ticks.map((t, i) =>
             i % labelEvery === 0 ? (
               <span
@@ -106,34 +108,32 @@ export function DayTimeline({ sessions, timezone, now }: DayTimelineProps) {
         </div>
       </div>
 
-      <ol className="flex flex-col gap-1.5 text-sm">
+      <ol className="flex flex-wrap gap-x-7 gap-y-2 text-[13px] text-muted-foreground">
         {sessions.map((s, i) => {
-          const minutes = Math.round((endOf(s.clockOut) - Date.parse(s.clockIn)) / 60000);
-          const breakMin = s.breaks.reduce(
-            (sum, b) => sum + Math.round((endOf(b.breakEnd) - Date.parse(b.breakStart)) / 60000),
+          // Round once per total (not per break) so the list and "Breaks today" agree.
+          const sessionSec = (endOf(s.clockOut) - Date.parse(s.clockIn)) / 1000;
+          const breakSec = s.breaks.reduce(
+            (sum, b) => sum + (endOf(b.breakEnd) - Date.parse(b.breakStart)) / 1000,
             0,
           );
+          const breakMin = Math.round(breakSec / 60);
+          const workedMin = Math.max(0, Math.round((sessionSec - breakSec) / 60));
           return (
-            <li key={s.id} className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
-              <span className="w-20 text-xs font-semibold text-muted-foreground">Session {i + 1}</span>
-              <span className="font-mono tabular-nums">
+            <li key={s.id} className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+              <span aria-hidden="true" className="h-2 w-2 rounded-[2px] bg-status-live-fill" />
+              <span className="font-semibold text-foreground">Session {i + 1}</span>
+              <span className="font-medium tabular-nums text-foreground">
                 {localTimeString(new Date(s.clockIn), timezone)} –{" "}
                 {s.clockOut ? localTimeString(new Date(s.clockOut), timezone) : "now"}
               </span>
-              <span className="tabular-nums text-muted-foreground">
-                {formatMinutesAsHours(Math.max(0, minutes - breakMin))}
-              </span>
+              <span className="tabular-nums">{formatMinutesAsHours(workedMin)}</span>
               {s.breaks.length > 0 && (
-                <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1 text-xs">
                   <Coffee className="size-3.5" />
                   {s.breaks.length} break{s.breaks.length > 1 ? "s" : ""} · {formatMinutesAsHours(breakMin)}
                 </span>
               )}
-              {s.closedBy === "auto" && (
-                <span className="rounded-full bg-status-warn-bg px-2 py-0.5 text-xs font-semibold text-status-warn">
-                  Auto-closed
-                </span>
-              )}
+              {s.closedBy === "auto" && <StatusBadge status="review" className="ml-1" />}
             </li>
           );
         })}

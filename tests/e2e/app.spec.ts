@@ -28,7 +28,7 @@ test("breaks and a second session on the same day", async ({ page }) => {
   await page.getByRole("button", { name: "Clock In" }).click();
   await page.getByRole("button", { name: "Start Break" }).click();
   await expect(page.getByText("On break", { exact: true })).toBeVisible();
-  await expect(page.getByText("Break — live")).toBeVisible();
+  await expect(page.getByRole("button", { name: "End Break" })).toBeVisible();
 
   await page.getByRole("button", { name: "End Break" }).click();
   await expect(page.getByText("Working", { exact: true })).toBeVisible();

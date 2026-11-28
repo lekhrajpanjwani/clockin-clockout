@@ -23,5 +23,5 @@
     },
     "types": ["vite/client"]
   },
-  "include": ["src", "netlify/functions", "tests", "vite.config.ts"]
+  "include": ["src", "netlify/functions", "netlify/dev", "tests", "vite.config.ts"]
 }

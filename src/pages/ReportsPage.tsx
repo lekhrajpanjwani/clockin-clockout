@@ -99,15 +99,13 @@ export function ReportsPage() {
         <CardHeader>
           <CardTitle>{month !== null ? "Hours per day" : "Hours per month"}</CardTitle>
           <CardDescription>
-            {month !== null ? "Dashed line marks an 8-hour day." : `Total hours in each month of ${year}.`}
+            {month !== null
+              ? "Hours worked on each day of the month."
+              : `Total hours in each month of ${year}.`}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {yearly.isLoading ? (
-            <Skeleton className="h-[200px] w-full" />
-          ) : (
-            <HoursChart bars={bars} {...(month !== null ? { targetMinutes: 480 } : {})} />
-          )}
+          {yearly.isLoading ? <Skeleton className="h-[200px] w-full" /> : <HoursChart bars={bars} />}
         </CardContent>
       </Card>
 

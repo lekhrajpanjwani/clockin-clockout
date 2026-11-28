@@ -68,7 +68,7 @@ export function HoursChart({ bars, targetMinutes, height = 180 }: HoursChartProp
               width={barW}
               height={h}
               rx="0.6"
-              fill="var(--primary)"
+              fill="var(--status-live-fill)"
             >
               <title>{`${b.title}: ${formatMinutesAsHours(b.minutes)}`}</title>
             </rect>

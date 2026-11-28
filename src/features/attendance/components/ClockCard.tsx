@@ -4,7 +4,7 @@ import { Card } from "../../../components/ui/card";
 import { Button } from "../../../components/ui/button";
 import { Skeleton } from "../../../components/ui/skeleton";
 import { ConfirmDialog } from "../../../components/feedback/ConfirmDialog";
-import { SessionTimer } from "./SessionTimer";
+import { DayDial } from "./DayDial";
 import { DayTimeline } from "./DayTimeline";
 import { useToday } from "../hooks/useToday";
 import { useLastSession } from "../hooks/useLastSession";
@@ -17,7 +17,8 @@ import { useOnlineStatus } from "../../../hooks/useOnlineStatus";
 import { liveDayTotals } from "../../../lib/shared/aggregate/day";
 import { LeaveDialog } from "../leave/LeaveDialog";
 import { CancelLeaveButton } from "../leave/CancelLeaveButton";
-import { formatMinutesAsHours, localTimeString } from "../../../lib/shared/time/attendance";
+import { formatClock, formatMinutesAsHours, localTimeString } from "../../../lib/shared/time/attendance";
+import { cn } from "../../../utils/cn";
 
 /** What the card shows. `clocked_out` = at least one session today, none open —
  * the user can start another session. */
@@ -27,19 +28,25 @@ const PILL: Record<ClockState, { label: string; dot: string; pill: string }> = {
   idle: { label: "Not clocked in", dot: "bg-muted-foreground", pill: "bg-muted text-muted-foreground" },
   working: {
     label: "Working",
-    dot: "bg-status-live animate-pulse-dot",
+    dot: "bg-status-live-fill animate-pulse-dot",
     pill: "bg-status-live-bg text-status-live",
   },
-  on_break: { label: "On break", dot: "bg-primary animate-pulse-dot", pill: "bg-secondary text-foreground" },
+  on_break: {
+    label: "On break",
+    dot: "bg-status-break-fill animate-pulse-dot",
+    pill: "bg-status-break-bg text-status-break",
+  },
   clocked_out: { label: "Clocked out", dot: "bg-status-good", pill: "bg-status-good-bg text-status-good" },
-  leave: { label: "On leave", dot: "bg-status-live", pill: "bg-accent text-accent-foreground" },
+  leave: { label: "On leave", dot: "bg-primary", pill: "bg-primary-soft text-primary-ink" },
 };
 
 function StatusPill({ state }: { state: ClockState }) {
   const c = PILL[state];
   return (
-    <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${c.pill}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${c.dot}`} />
+    <span
+      className={cn("inline-flex h-7 items-center gap-2 rounded-full px-3 text-[13px] font-semibold", c.pill)}
+    >
+      <span className={cn("h-[7px] w-[7px] rounded-full", c.dot)} />
       {c.label}
     </span>
   );
@@ -47,9 +54,9 @@ function StatusPill({ state }: { state: ClockState }) {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <p className="text-muted-foreground">{label}</p>
-      <p className="font-semibold tabular-nums">{value}</p>
+    <div className="flex flex-col gap-0.5">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="text-sm font-semibold tabular-nums">{value}</span>
     </div>
   );
 }
@@ -75,133 +82,163 @@ export function ClockCard() {
   const busy = clockIn.isPending || clockOut.isPending || breakStart.isPending || breakEnd.isPending;
   const disabled = !online || busy;
   const tz = record?.timezone ?? timezone;
+  const fmt = (iso: string | null | undefined, zone = tz) =>
+    iso ? localTimeString(new Date(iso), zone) : "—";
 
-  const timerSeconds =
-    state === "working"
-      ? live.currentSessionSeconds
-      : state === "on_break"
-        ? live.currentBreakSeconds
-        : live.workedSeconds;
-  const timerCaption = {
-    idle: "Timer starts when you clock in",
-    working: `Current session — live${sessions.length > 1 ? ` (session ${sessions.length})` : ""}`,
-    on_break: "Break — live",
-    clocked_out: "Worked today",
-    leave: "No attendance on leave days",
+  const openSession = sessions.find((s) => s.clockOut === null);
+  const openBreak = openSession?.breaks.find((b) => b.breakEnd === null);
+
+  const dial = {
+    idle: { label: "Ready", timer: formatClock(0), caption: "Clock in to start the day" },
+    working: {
+      label: sessions.length > 1 ? `Session ${sessions.length} · live` : "Current session",
+      timer: formatClock(live.currentSessionSeconds),
+      caption: `since ${fmt(openSession?.clockIn)}`,
+    },
+    on_break: {
+      label: "Break",
+      timer: formatClock(live.currentBreakSeconds),
+      caption: `since ${fmt(openBreak?.breakStart)}`,
+    },
+    clocked_out: {
+      label: "Worked today",
+      timer: formatClock(live.workedSeconds),
+      caption: `${fmt(record?.clockIn)} – ${fmt(record?.clockOut)}`,
+    },
+    leave: { label: "Leave", timer: "—", caption: "No attendance today" },
   }[state];
 
-  // First in / last out of today; before today's first clock-in, fall back to the previous day.
+  const note = {
+    idle: "Nothing logged yet today",
+    working: "",
+    on_break: "",
+    clocked_out: `at ${fmt(record?.clockOut)} · you can start another session`,
+    leave: "",
+  }[state];
+
+  // Before today's first clock-in, show the previous day's last times.
   const firstIn = record?.clockIn ?? (state === "idle" ? lastSession?.clockIn : null) ?? null;
   const lastOut = record ? record.clockOut : (lastSession?.clockOut ?? null);
-  const fmt = (iso: string | null, zone: string) => (iso ? localTimeString(new Date(iso), zone) : "—");
   const fallbackTz = record ? tz : (lastSession?.timezone ?? tz);
+  const dialLabel = sessions.length
+    ? `Today on a 24-hour dial: ${sessions
+        .map((s) => `${fmt(s.clockIn)} to ${s.clockOut ? fmt(s.clockOut) : "now"}`)
+        .join(", ")}`
+    : "Today on a 24-hour dial: no sessions yet";
 
   if (isLoading) {
     return (
-      <Card className="flex flex-col gap-4 p-6">
-        <Skeleton className="h-6 w-32" />
-        <Skeleton className="h-12 w-56" />
-        <Skeleton className="h-10 w-40" />
+      <Card className="flex flex-wrap items-center gap-9 p-7">
+        <Skeleton className="h-[236px] w-[236px] rounded-full" />
+        <div className="flex flex-1 flex-col gap-4">
+          <Skeleton className="h-7 w-32" />
+          <Skeleton className="h-10 w-40" />
+          <Skeleton className="h-12 w-64" />
+        </div>
       </Card>
     );
   }
 
   return (
-    <Card className="relative overflow-hidden p-6">
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background: "radial-gradient(420px 220px at 100% 0%, rgba(192, 138, 62, 0.12), transparent 70%)",
-        }}
-      />
-      <div className="relative flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Today</p>
-          <h2 className="mt-1 font-display text-xl font-bold">
-            {now.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })}
-          </h2>
+    <Card className="flex flex-col gap-7 p-5 sm:p-7">
+      <div className="flex flex-wrap items-center justify-center gap-x-9 gap-y-6 sm:justify-start">
+        <DayDial sessions={sessions} timezone={tz} now={now} label={dialLabel}>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
+            {dial.label}
+          </span>
+          <span className="text-[36px] font-light tabular-nums leading-none tracking-[-0.04em]">
+            {dial.timer}
+          </span>
+          <span className="text-[13px] tabular-nums text-muted-foreground">{dial.caption}</span>
+        </DayDial>
+
+        <div className="flex min-w-[260px] flex-1 flex-col gap-5">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <StatusPill state={state} />
+            {note && <span className="text-[13px] text-muted-foreground">{note}</span>}
+          </div>
+
+          {state === "leave" ? (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-start gap-3">
+                <Umbrella className="mt-0.5 size-5 shrink-0 text-primary" />
+                <div>
+                  <p className="font-semibold">You're on leave today.</p>
+                  {record?.leaveReason && (
+                    <p className="text-sm text-muted-foreground">{record.leaveReason}</p>
+                  )}
+                </div>
+              </div>
+              {record && (
+                <CancelLeaveButton
+                  date={record.workDate}
+                  variant="outline"
+                  className="self-start"
+                  disabled={!online}
+                />
+              )}
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-col gap-1">
+                <span className="text-[13px] text-muted-foreground">Worked today</span>
+                <span className="text-[32px] font-semibold tabular-nums leading-tight tracking-[-0.03em]">
+                  {formatMinutesAsHours(Math.floor(live.workedSeconds / 60))}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2.5">
+                {(state === "idle" || state === "clocked_out") && (
+                  <Button size="lg" onClick={() => clockIn.mutate()} disabled={disabled}>
+                    <ArrowRight />
+                    {clockIn.isPending
+                      ? "Clocking in…"
+                      : state === "clocked_out"
+                        ? "Clock in again"
+                        : "Clock in"}
+                  </Button>
+                )}
+                {state === "idle" && (
+                  <Button size="lg" variant="outline" onClick={() => setLeaveOpen(true)} disabled={disabled}>
+                    <Umbrella />
+                    Mark leave
+                  </Button>
+                )}
+                {state === "working" && (
+                  <Button size="lg" onClick={() => breakStart.mutate()} disabled={disabled}>
+                    <Coffee />
+                    {breakStart.isPending ? "Starting…" : "Start break"}
+                  </Button>
+                )}
+                {state === "on_break" && (
+                  <Button size="lg" onClick={() => breakEnd.mutate()} disabled={disabled}>
+                    <Play />
+                    {breakEnd.isPending ? "Ending…" : "End break"}
+                  </Button>
+                )}
+                {(state === "working" || state === "on_break") && (
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => setConfirmOpen(true)}
+                    disabled={disabled}
+                  >
+                    <Square className="fill-current" />
+                    Clock out
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
         </div>
-        <StatusPill state={state} />
       </div>
 
-      {state === "leave" ? (
-        <div className="relative mt-5 flex items-start gap-3 rounded-lg bg-accent p-4">
-          <Umbrella className="mt-0.5 size-5 shrink-0 text-status-live" />
-          <div>
-            <p className="font-semibold">You're on leave today.</p>
-            {record?.leaveReason && <p className="text-sm text-muted-foreground">{record.leaveReason}</p>}
-          </div>
-          {record && (
-            <CancelLeaveButton
-              date={record.workDate}
-              variant="outline"
-              size="sm"
-              className="ml-auto"
-              disabled={!online}
-            />
-          )}
-        </div>
-      ) : (
-        <>
-          <SessionTimer seconds={timerSeconds} className="relative mt-5" />
-          <p className="relative mt-1 text-sm text-muted-foreground">{timerCaption}</p>
+      {sessions.length > 0 && <DayTimeline sessions={sessions} timezone={tz} now={now} />}
 
-          <div className="relative mt-5 flex flex-wrap items-center gap-3">
-            {(state === "idle" || state === "clocked_out") && (
-              <Button size="lg" onClick={() => clockIn.mutate()} disabled={disabled}>
-                <ArrowRight />
-                {clockIn.isPending ? "Clocking in…" : state === "clocked_out" ? "Clock In again" : "Clock In"}
-              </Button>
-            )}
-            {state === "idle" && (
-              <Button size="lg" variant="ghost" onClick={() => setLeaveOpen(true)} disabled={disabled}>
-                <Umbrella />
-                Mark leave
-              </Button>
-            )}
-            {state === "working" && (
-              <Button size="lg" variant="secondary" onClick={() => breakStart.mutate()} disabled={disabled}>
-                <Coffee />
-                {breakStart.isPending ? "Starting…" : "Start Break"}
-              </Button>
-            )}
-            {state === "on_break" && (
-              <Button size="lg" onClick={() => breakEnd.mutate()} disabled={disabled}>
-                <Play />
-                {breakEnd.isPending ? "Ending…" : "End Break"}
-              </Button>
-            )}
-            {(state === "working" || state === "on_break") && (
-              <Button
-                size="lg"
-                variant={state === "on_break" ? "outline" : "destructive"}
-                onClick={() => setConfirmOpen(true)}
-                disabled={disabled}
-              >
-                <Square />
-                Clock Out
-              </Button>
-            )}
-          </div>
-          {state === "clocked_out" && record?.clockOut && (
-            <p className="relative mt-2 text-xs text-muted-foreground">
-              Clocked out at {fmt(record.clockOut, tz)}. You can start another session any time today.
-            </p>
-          )}
-        </>
-      )}
-
-      {sessions.length > 0 && (
-        <div className="relative mt-6">
-          <DayTimeline sessions={sessions} timezone={tz} now={now} />
-        </div>
-      )}
-
-      <div className="relative mt-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
+      <div className="flex flex-wrap gap-x-10 gap-y-3 border-t border-border pt-4">
         <Stat label={record ? "First clock in" : "Last clock in"} value={fmt(firstIn, fallbackTz)} />
         <Stat label="Last clock out" value={fmt(lastOut, fallbackTz)} />
-        <Stat label="Worked today" value={formatMinutesAsHours(Math.floor(live.workedSeconds / 60))} />
-        <Stat label="Breaks today" value={formatMinutesAsHours(Math.floor(live.breakSeconds / 60))} />
+        <Stat label="Breaks today" value={formatMinutesAsHours(Math.round(live.breakSeconds / 60))} />
       </div>
 
       <LeaveDialog open={leaveOpen} onOpenChange={setLeaveOpen} />
@@ -210,7 +247,7 @@ export function ClockCard() {
         onOpenChange={setConfirmOpen}
         title="Clock out now?"
         description={`This ends your current session${state === "on_break" ? " and your break" : ""} at ${now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })} (${tz}). You can clock in again later today.`}
-        confirmLabel="Clock Out"
+        confirmLabel="Clock out"
         variant="destructive"
         confirming={clockOut.isPending}
         onConfirm={() => clockOut.mutate(undefined, { onSuccess: () => setConfirmOpen(false) })}

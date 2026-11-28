@@ -130,3 +130,16 @@ export function isoToLocalHHmm(iso: string, timeZone: string): string {
 export function localDateTimeToIso(dateIso: string, hhmm: string, timeZone: string): string {
   return fromZonedTime(`${dateIso}T${hhmm}:00`, timeZone).toISOString();
 }
+
+/** Minutes since local midnight (0–1439) of `instant` in `timeZone`. */
+export function minutesOfDay(instant: Date, timeZone: string): number {
+  const [h, m] = formatInTimeZone(instant, timeZone, "H:m").split(":").map(Number) as [number, number];
+  return h * 60 + m;
+}
+
+/** "H:MM:SS" for a live timer (hours not zero-padded). */
+export function formatClock(totalSeconds: number): string {
+  const s = Math.max(0, Math.floor(totalSeconds));
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${Math.floor(s / 3600)}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}`;
+}
