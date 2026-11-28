@@ -53,9 +53,12 @@ export function RecentDays({ todayIso }: { todayIso: string }) {
                     timeZone: "UTC",
                   })}
                 </span>
-                <span className="hidden tabular-nums text-muted-foreground sm:inline">
-                  {r.clockIn ? localTimeString(new Date(r.clockIn), r.timezone) : "—"} –{" "}
-                  {r.clockOut ? localTimeString(new Date(r.clockOut), r.timezone) : "—"}
+                <span className="hidden truncate tabular-nums text-muted-foreground sm:inline">
+                  {r.status === "leave"
+                    ? (r.leaveReason ?? "On leave")
+                    : `${r.clockIn ? localTimeString(new Date(r.clockIn), r.timezone) : "—"} – ${
+                        r.clockOut ? localTimeString(new Date(r.clockOut), r.timezone) : "now"
+                      }`}
                 </span>
                 <div className="h-1.5 overflow-hidden rounded-full bg-track">
                   <div

@@ -58,18 +58,18 @@ export function WeekCard({ todayIso }: { todayIso: string }) {
               title={`${d.label}: ${d.leave ? "leave" : formatMinutesAsHours(d.minutes)}`}
               className={cn(
                 "w-full max-w-[22px] rounded-[6px]",
-                d.today
-                  ? "bg-primary"
-                  : d.leave
-                    ? "bg-primary-soft"
-                    : d.minutes
-                      ? "bg-status-live-fill"
-                      : "bg-track",
+                // Same meaning as everywhere else: teal = worked, brass = leave.
+                d.leave ? "bg-primary" : d.minutes ? "bg-status-live-fill" : "bg-track",
               )}
               style={{ height: `${Math.max(4, (d.minutes / max) * 64)}px` }}
             />
             <span
-              className={cn("text-[11px] font-medium", d.today ? "text-foreground" : "text-muted-foreground")}
+              className={cn(
+                "text-[11px] font-medium",
+                d.today
+                  ? "font-semibold text-foreground underline decoration-2 underline-offset-4"
+                  : "text-muted-foreground",
+              )}
             >
               {d.label}
             </span>

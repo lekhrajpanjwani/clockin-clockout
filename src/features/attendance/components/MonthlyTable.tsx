@@ -81,7 +81,9 @@ export function MonthlyTable({ days, weeklyTotals, monthlyTotalMinutes, todayIso
                     {r?.clockOut ? localTimeString(new Date(r.clockOut), r.timezone) : "—"}
                   </td>
                   <td className="px-4 py-2.5 text-right tabular-nums">
-                    {r?.workedMinutes != null ? formatMinutesAsHours(r.workedMinutes) : "—"}
+                    {r?.workedMinutes != null && r.status !== "leave"
+                      ? formatMinutesAsHours(r.workedMinutes)
+                      : "—"}
                   </td>
                   <td className="hidden px-4 py-2.5 md:table-cell">
                     {r?.workedMinutes ? (
